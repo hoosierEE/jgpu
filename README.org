@@ -1,0 +1,39 @@
+#+begin_quote
+Run J code on the GPU
+#+end_quote
+* plan outline
+** main goal: ~(x +/ .* y)~ executing on the gpu
+- should work on various gpu brands/devices
+- prototype with ~cd~ interface to GPU backend, callable from J
+- timing measurements - ideally captured by a user script, to better configure their particular system:
+  + time to transfer a byte from L1$/L2$ CPU memory to the GPU
+  + time to transfer a byte from L3$/SDRAM to the GPU
+  + time to transfer a byte from GPU to L1$/L2$ CPU memory
+  + time to transfer a byte from GPU to L3$/SDRAM
+  + time to start a GPU operation in an idle GPU
+  + time to start a GPU operation if the GPU is already busy (or, the time to start the second primitive in a grouped operation of two primitives)
+  + for each primitive, the setup time (which is independent of operand size)
+  + the maximum batch size in atoms
+  + for each primitive, the operation time per batch
+  + for each primitive, a formula for converting argument shape to # batches
+** future goals
+Matrix multiplication is
+- arithmetic monads on GPU for large float args
+- arithmetic dyads on GPU for large float args
+- "GPU rating" for verbs based on speed measurements, to indicate which verbs benefit from running on the GPU and at what size of args
+* related work
+- https://github.com/Pascal-J/Jfire arrayfire bindings from J (from 2017)
+- https://github.com/Co-dfns/Co-dfns apl compiler with arrayfire backend
+- [[https://discourse.julialang.org/t/can-we-make-a-comparison-overview-of-different-gpu-computing-implementations/24294][comparison of gpu approaches for julia language]]
+* resources
+- [[https://arrayfire.com/][arrayfire]]
+- [[https://developer.nvidia.com/gpu-accelerated-libraries][nvidia gpu libraries]]
+- [[https://www.psc.edu/wp-content/uploads/2021/06/OpenMP-and-GPUs.pdf][OpenMP/OpenACC considerations]]
+- [[https://rocmdocs.amd.com/en/latest/][ROCm by AMD]]
+* license
+The license at this time is GPLv3, for approximate compatibility with J's [[https://github.com/jsoftware/jsource/blob/master/license.txt][license]], which has GPLv3 as an option.
+* installing ArrayFire
+MacOS installer from [[https://arrayfire.s3.amazonaws.com/3.7.2/ArrayFire-v3.7.2_OSX_x86_64.pkg][here]], retrieved on 2021-09-13:
+- Libraries will be installed in /opt/arrayfire/lib
+- Headers will be installed in /opt/arrayfire/include
+- Examples, documentation and CMake config files will be installed in /opt/arrayfire/share
