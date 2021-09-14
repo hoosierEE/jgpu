@@ -1,3 +1,6 @@
+:PROPERTIES:
+:HEADER-ARGS:bash: :results output :exports both
+:END:
 * main.cpp
 #+begin_src C++ :tangle main.cpp
 #include <arrayfire.h>
@@ -32,12 +35,28 @@ While ~make~ succeeds, running the resulting executable with ~./test~ fails:
 dyld: Library not loaded: @rpath/libafcpu.3.dylib
   Referenced from: /Users/ashroyer-admin/repo/fun/jgpu/examples/hello/./test
   Reason: image not found
-make: *** [all] Abort trap: 6
 #+end_example
 
 According to [[https://stackoverflow.com/a/54072747/2037637][this]], a possible fix is to update homebrew:
 #+begin_src sh
 brew update
 brew upgrade
-# brew cleanup  # not sure if this step is necessary
+brew cleanup  # not sure if this step is necessary
 #+end_src
+
+The above suggestion did not solve the issue for me, but [[https://stackoverflow.com/a/17704255/2037637][this suggestion]] did, at least temporarily:
+#+begin_src sh
+install_name_tool -change @rpath/libafcpu.3.dylib /opt/arrayfire/lib/libafcpu.3.dylib test
+#+end_src
+
+After running the above command I the ~test~ program runs without error:
+#+begin_src bash
+./test
+#+end_src
+
+#+RESULTS:
+: sum: 4979.24
+
+* Summary
+For now, getting a "hello ArrayFire" program to run on MacOS was not completely smooth, but at least answers to my questions were readily found.
+Will try Linux next to compare.

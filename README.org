@@ -30,5 +30,7 @@ Matrix multiplication is
 - [[https://developer.nvidia.com/gpu-accelerated-libraries][nvidia gpu libraries]]
 - [[https://www.psc.edu/wp-content/uploads/2021/06/OpenMP-and-GPUs.pdf][OpenMP/OpenACC considerations]]
 - [[https://rocmdocs.amd.com/en/latest/][ROCm by AMD]]
+- [[https://en.wikipedia.org/wiki/OneAPI_(compute_acceleration)][Intel OneAPI]]
+- [[https://www.khronos.org/sycl/][SYCL]]
 * license
 The license at this time is GPLv3, for approximate compatibility with J's [[https://github.com/jsoftware/jsource/blob/master/license.txt][license]], which has GPLv3 as an option.
