@@ -1,0 +1,5 @@
+* ArrayFire
+These bullet points are copied from the MacOS installer from [[https://arrayfire.s3.amazonaws.com/3.7.2/ArrayFire-v3.7.2_OSX_x86_64.pkg][here]], retrieved on 2021-09-13. Keeping them here as a reference.
+- Libraries will be installed in /opt/arrayfire/lib
+- Headers will be installed in /opt/arrayfire/include
+- Examples, documentation and CMake config files will be installed in /opt/arrayfire/share
