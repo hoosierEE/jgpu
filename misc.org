@@ -3,3 +3,22 @@ These bullet points are copied from the MacOS installer from [[https://arrayfire
 - Libraries will be installed in /opt/arrayfire/lib
 - Headers will be installed in /opt/arrayfire/include
 - Examples, documentation and CMake config files will be installed in /opt/arrayfire/share
+** doxygen documentation
+For MacOS, access docs like this:
+
+#+begin_src sh
+open /opt/arrayfire/share/ArrayFire/doc/html/index.htm
+#+end_src
+
+** minimal Makefile
+As mentioned in the [[/opt/arrayfire/share/ArrayFire/doc/html/using_on_osx.htm][docs]], Makefiles must specify library paths explicitly:
+#+begin_src makefile
+LIBS=-lafcpu
+LIB_PATHS=-L/opt/arrayfire/lib
+INCLUDES=-I/opt/arrayfire/include
+CC=g++ $(COMPILER_OPTIONS)
+COMPILER_OPTIONS=-std=c++11 -g
+
+all: main.cpp Makefile
+    $(CC) main.cpp -o test $(INCLUDES) $(LIBS) $(LIB_PATHS)
+#+end_src
