@@ -49,7 +49,7 @@ The above suggestion did not solve the issue for me, but [[https://stackoverflow
 install_name_tool -change @rpath/libafcpu.3.dylib /opt/arrayfire/lib/libafcpu.3.dylib test
 #+end_src
 
-After running the above command I the ~test~ program runs without error:
+After running the above command, the ~test~ program runs without error:
 #+begin_src bash
 ./test
 #+end_src
