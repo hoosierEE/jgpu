@@ -6,9 +6,9 @@ Hardware configurations used for testing.
  - os: Ubuntu 20.04
  - nickname: "white dell"
 ** gpu
-Nvidia GeForce 9800GT
+Nvidia GeForce 9500GT
 
-Specifications below copied from [[https://www.techpowerup.com/gpu-specs/geforce-9800-gt.c635][this link]]:
+Specifications below copied from [[https://www.techpowerup.com/gpu-specs/geforce-9500-gt.c3373][this link]]:
 
 *** features
 - DirectX: 11.1 (10_0)
@@ -21,28 +21,28 @@ Specifications below copied from [[https://www.techpowerup.com/gpu-specs/geforce
 *** clock speeds
 - gpu clock: 600 MHz
 - shader clock: 1500 MHz
-- memory clock: 900 MHz, 1800 Mbps effective
+- memory clock: 1000 MHz, 2000 Mbps effective
 
 *** memory
 - size: 512 MB
 - type: GDDR3
-- bus: 256 bit
-- bandwidth: 57.6 GB/s
+- bus: 128 bit
+- bandwidth: 32.0 GB/s
 
 *** render config
-- shading units: 112
-- TMUs: 56
-- ROPs: 16
-- SM count: 14
-- L2 Cache: 64KB
+- shading units: 32
+- TMUs: 16
+- ROPs: 8
+- SM count: 4
+- L2 Cache: 32KB
 
 *** theoretical performance
-- pixel rate: 9.600 GPixel/s
-- texture rate: 33.60 GTexel/s
-- FP32 (float) performance: 336.0 GFLOPS
+- pixel rate: 4.8 GPixel/s
+- texture rate: 9.6 GTexel/s
+- FP32 (float) performance: 96.0 GFLOPS
 
 *** relative performance
-State-of-the-art GeForce RTX 3090 is about 30.54x faster than this card.
+State-of-the-art GeForce RTX 3090 is about 90x faster than this card.
 
 * Macbook Pro
 - cpu: 2.2 GHz Intel Core i7
