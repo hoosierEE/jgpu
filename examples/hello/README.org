@@ -1,6 +1,6 @@
-:PROPERTIES:
-:HEADER-ARGS:bash: :results output :exports both
-:END:
+#+PROPERTY: header-args:bash :results output :exports both
+# #+PROPERTY: header-args:C++ :exports code
+# #+PROPERTY: header-args:makefile :exports code
 * main.cpp
 #+begin_src C++ :tangle main.cpp
 #include <arrayfire.h>
@@ -30,6 +30,13 @@ all: main.cpp Makefile
 	$(CC) main.cpp -o test $(INCLUDES) $(LIBS) $(LIB_PATHS)
 #+end_src
 
+#+begin_src bash
+make
+#+end_src
+
+#+RESULTS:
+: g++ -std=c++11 -g main.cpp -o test -I/opt/arrayfire/include -lafcpu -L/opt/arrayfire/lib
+
 While ~make~ succeeds, running the resulting executable with ~./test~ fails:
 #+begin_example
 dyld: Library not loaded: @rpath/libafcpu.3.dylib
@@ -49,12 +56,43 @@ The above suggestion did not solve the issue for me, but [[https://stackoverflow
 install_name_tool -change @rpath/libafcpu.3.dylib /opt/arrayfire/lib/libafcpu.3.dylib test
 #+end_src
 
+#+RESULTS:
+
 After running the above command, the ~test~ program runs without error:
 #+begin_src bash
 ./test
 #+end_src
 
 #+RESULTS:
+: sum: 4979.24
+
+* Updated Makefile
+This incorporates the ~install_name_tool~ hack.
+#+begin_src makefile :tangle Makefile
+LIBS=-lafcpu
+LIB_PATHS=-L/opt/arrayfire/lib
+INCLUDES=-I/opt/arrayfire/include
+CC=g++ $(COMPILER_OPTIONS)
+COMPILER_OPTIONS=-std=c++11 -g
+
+OUTFILE=a.out
+
+all: main.cpp Makefile
+	$(CC) main.cpp -o $(OUTFILE) $(INCLUDES) $(LIBS) $(LIB_PATHS)
+	install_name_tool -change @rpath/libafcpu.3.dylib /opt/arrayfire/lib/libafcpu.3.dylib $(OUTFILE)
+
+test: all
+	./$(OUTFILE)
+#+end_src
+
+#+begin_src bash :results output
+make test
+#+end_src
+
+#+RESULTS:
+: g++ -std=c++11 -g main.cpp -o a.out -I/opt/arrayfire/include -lafcpu -L/opt/arrayfire/lib
+: install_name_tool -change @rpath/libafcpu.3.dylib /opt/arrayfire/lib/libafcpu.3.dylib a.out
+: ./a.out
 : sum: 4979.24
 
 * Summary

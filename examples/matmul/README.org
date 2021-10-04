@@ -1,0 +1,83 @@
+#+PROPERTY: header-args:bash :results output :exports both
+#+TITLE: ArrayFire matrix multiplication
+* main.cpp
+#+begin_src C++ :tangle main.cpp
+#include<arrayfire.h>
+int main(void) {
+    af::array M1 = af::randu(2,4);
+    af::array M2 = af::randu(4,1);
+    af::array result = af::matmul(M1, M2);
+    af_print(result);
+}
+#+end_src
+
+* Makefile
+#+begin_src makefile :tangle Makefile
+LIBNAME=afcpu
+LIBS=-l$(LIBNAME)
+LIB_PATHS=-L/opt/arrayfire/lib
+INCLUDES=-I/opt/arrayfire/include
+CC=g++ $(COMPILER_OPTIONS)
+COMPILER_OPTIONS=-std=c++11 -g
+EXE = matmul
+
+all: main.cpp Makefile
+	$(CC) main.cpp -o $(EXE) $(INCLUDES) $(LIBS) $(LIB_PATHS)
+	# the following line fixes a weird runtime error
+	install_name_tool -change @rpath/lib${LIBNAME}.3.dylib /opt/arrayfire/lib/lib${LIBNAME}.3.dylib $(EXE)
+
+clean:
+	rm -f $(EXE)
+
+test: clean all
+	./$(EXE)
+#+end_src
+
+#+begin_src bash
+make -s test
+#+end_src
+
+#+RESULTS:
+: result
+: [2 1 1 1]
+:     0.9704
+:     0.3218
+:
+
+
+* main.c
+#+begin_src C++ :tangle main.cpp
+#include<arrayfire.h>
+int main() {
+    af::array M1 = af::randu(2,4);
+    af::array M2 = af::randu(4,1);
+    af::array result = af::matmul(M1, M2);
+    af_print(result);
+}
+#+end_src
+
+* Makefile2
+#+begin_src makefile :tangle Makefile2
+LIBNAME=afcpu
+LIBS=-l$(LIBNAME)
+LIB_PATHS=-L/opt/arrayfire/lib
+INCLUDES=-I/opt/arrayfire/include
+CC=g++ $(COMPILER_OPTIONS)
+COMPILER_OPTIONS=-std=c++11 -g
+EXE = matmul
+
+all: main.cpp Makefile
+	$(CC) main.cpp -o $(EXE) $(INCLUDES) $(LIBS) $(LIB_PATHS)
+	# the following line fixes a weird runtime error
+	install_name_tool -change @rpath/lib${LIBNAME}.3.dylib /opt/arrayfire/lib/lib${LIBNAME}.3.dylib $(EXE)
+
+clean:
+	rm -f $(EXE)
+
+test: clean all
+	./$(EXE)
+#+end_src
+
+#+begin_src bash
+make -s test
+#+end_src

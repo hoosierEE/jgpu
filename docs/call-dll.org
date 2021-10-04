@@ -1,0 +1,81 @@
+#+PROPERTY: header-args:J :exports both :output results
+#+LATEX_HEADER: \usepackage[T1]{fontenc}
+#+LATEX_HEADER: \usepackage[utf8]{inputenc}
+#+LATEX_HEADER: \usepackage{pmboxdraw}
+
+# #+LATEX_HEADER: \usepackage{fontspec}
+# #+LATEX_HEADER: \usepackage{url}
+# #+LATEX_HEADER: \usepackage[a4paper, total={6.5in, 9.3in}]{geometry}
+# #+LATEX_HEADER: \setmainfont{Source Code Pro}
+#+OPTIONS: toc:nil num:nil
+
+call a dynamic library from J
+* a C library
+#+begin_src C :main no :tangle foobar.c
+void foo(int *x){x[0] += 3;}
+int bar(int *a){return a[1];}
+int baz(int *a, int b){return a[b];}
+#+end_src
+
+#+RESULTS:
+
+* build as a dynamic library
+Note: using MacOS in this example, so file extension is ~.dylib~.
+#+begin_src bash :results none
+rm -f foobar.o foobar.dylib
+gcc -c foobar.c
+g++ -dynamiclib foobar.o -o libfoobar.dylib
+#+end_src
+
+* call from J
+The ~cd~ function returns a list of boxes.
+The first item is the return value from the foreign function call.
+The remaining values are the arguments which were given to ~cd~.
+This seemed pointless to me at first, until I realized that C can't return arrays.
+Instead, you can pass a pointer to an array, modify the array inside the function, and examine the array after the function returns.
+
+This "modify by reference" behavior is demonstrated by this first example:
+#+begin_src J
+a =: <0 1 2
+'./libfoobar.dylib foo n *i' cd a
+#+end_src
+
+#+RESULTS:
+: ┌─┬─────┐
+: │0│3 1 2│
+: └─┴─────┘
+
+Interestingly, the J value ~a~ was not actually changed, indicating that J has a second copy.
+Perhaps this is what [[https://www.jsoftware.com/help/jforc/calling_external_programs.htm][JfC]] means by "adequate only for simple functions".
+#+begin_src J
+a =: <0 1 2
+result =: './libfoobar.dylib foo n *i' cd a
+(a);<result
+#+end_src
+
+#+RESULTS:
+: ┌───────┬─────────┐
+: │┌─────┐│┌─┬─────┐│
+: ││0 1 2│││0│3 1 2││
+: │└─────┘│└─┴─────┘│
+: └───────┴─────────┘
+
+In the next example, the return value is a[1]:
+#+begin_src J
+'./libfoobar.dylib bar i *i' cd <1 2 3
+#+end_src
+
+#+RESULTS:
+: ┌─┬─────┐
+: │2│1 2 3│
+: └─┴─────┘
+
+Pass multiple arguments to ~cd~ as a list of boxes:
+#+begin_src  J
+'./libfoobar.dylib baz i *i i' cd 1 2 3;2
+#+end_src
+
+#+RESULTS:
+: ┌─┬─────┬─┐
+: │3│1 2 3│2│
+: └─┴─────┴─┘

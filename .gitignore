@@ -1,3 +1,7 @@
-# ignore C++ junk files
 *.dSYM
+*.dylib
+*.o
+*.out
 examples/*/test
+
+*.tex
