@@ -56,8 +56,6 @@ The above suggestion did not solve the issue for me, but [[https://stackoverflow
 install_name_tool -change @rpath/libafcpu.3.dylib /opt/arrayfire/lib/libafcpu.3.dylib test
 #+end_src
 
-#+RESULTS:
-
 After running the above command, the ~test~ program runs without error:
 #+begin_src bash
 ./test
@@ -94,6 +92,9 @@ make test
 : install_name_tool -change @rpath/libafcpu.3.dylib /opt/arrayfire/lib/libafcpu.3.dylib a.out
 : ./a.out
 : sum: 4979.24
+
+If ArrayFire was compiled a little differently (using options explained [[https://stackoverflow.com/a/4514831/2037637][here]]), this hack would perhaps not be necessary.
+For now, I prefer the workaround over compiling ArrayFire from source and modifying its build scripts.
 
 * Summary
 For now, getting a "hello ArrayFire" program to run on MacOS was not completely smooth, but at least answers to my questions were readily found.

@@ -1,25 +1,20 @@
 #+PROPERTY: header-args:J :exports both :output results
-#+LATEX_HEADER: \usepackage[T1]{fontenc}
-#+LATEX_HEADER: \usepackage[utf8]{inputenc}
-#+LATEX_HEADER: \usepackage{pmboxdraw}
-
+#+SETUPFILE: ~/org/blog.org
 # #+LATEX_HEADER: \usepackage{fontspec}
 # #+LATEX_HEADER: \usepackage{url}
 # #+LATEX_HEADER: \usepackage[a4paper, total={6.5in, 9.3in}]{geometry}
 # #+LATEX_HEADER: \setmainfont{Source Code Pro}
 #+OPTIONS: toc:nil num:nil
 
-call a dynamic library from J
-* a C library
+* call a (simple) dynamic library from J
+** a C library
 #+begin_src C :main no :tangle foobar.c
 void foo(int *x){x[0] += 3;}
 int bar(int *a){return a[1];}
 int baz(int *a, int b){return a[b];}
 #+end_src
 
-#+RESULTS:
-
-* build as a dynamic library
+** build as a dynamic library
 Note: using MacOS in this example, so file extension is ~.dylib~.
 #+begin_src bash :results none
 rm -f foobar.o foobar.dylib
@@ -27,7 +22,7 @@ gcc -c foobar.c
 g++ -dynamiclib foobar.o -o libfoobar.dylib
 #+end_src
 
-* call from J
+** call from J
 The ~cd~ function returns a list of boxes.
 The first item is the return value from the foreign function call.
 The remaining values are the arguments which were given to ~cd~.
@@ -79,3 +74,27 @@ Pass multiple arguments to ~cd~ as a list of boxes:
 : ┌─┬─────┬─┐
 : │3│1 2 3│2│
 : └─┴─────┴─┘
+
+
+* printing
+** clib
+#+begin_src C :main no :tangle prnt.c
+#include <stdio.h>
+void print(int* x, int len){printf("( ");for(int i=0;i<len;++i){printf("%d ", x[i]);}printf(")\n");}
+#+end_src
+
+#+begin_src bash :results none
+gcc -c prnt.c
+gcc -dynamiclib prnt.o -o libprnt.dylib
+#+end_src
+
+
+#+begin_src J
+'./libprnt.dylib print n *i i' cd a;#a =: 2 4 6 8 10
+#+end_src
+
+#+RESULTS:
+: ( 2 4 6 8 10 )
+: ┌─┬──────────┬─┐
+: │0│2 4 6 8 10│5│
+: └─┴──────────┴─┘
