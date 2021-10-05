@@ -1,14 +1,9 @@
 #+PROPERTY: header-args:J :exports both :output results
+#+PROPERTY: header-args:C :main no :mkdirp t
 #+SETUPFILE: ~/org/blog.org
-# #+LATEX_HEADER: \usepackage{fontspec}
-# #+LATEX_HEADER: \usepackage{url}
-# #+LATEX_HEADER: \usepackage[a4paper, total={6.5in, 9.3in}]{geometry}
-# #+LATEX_HEADER: \setmainfont{Source Code Pro}
-#+OPTIONS: toc:nil num:nil
-
 * call a (simple) dynamic library from J
 ** a C library
-#+begin_src C :main no :tangle foobar.c
+#+begin_src C :tangle src/foobar.c
 void foo(int *x){x[0] += 3;}
 int bar(int *a){return a[1];}
 int baz(int *a, int b){return a[b];}
@@ -17,9 +12,9 @@ int baz(int *a, int b){return a[b];}
 ** build as a dynamic library
 Note: using MacOS in this example, so file extension is ~.dylib~.
 #+begin_src bash :results none
-rm -f foobar.o foobar.dylib
-gcc -c foobar.c
-g++ -dynamiclib foobar.o -o libfoobar.dylib
+mkdir -p src/lib
+gcc -c src/foobar.c -o src/lib/foobar.o
+gcc -dynamiclib src/lib/foobar.o -o src/lib/libfoobar.dylib
 #+end_src
 
 ** call from J
@@ -32,7 +27,7 @@ Instead, you can pass a pointer to an array, modify the array inside the functio
 This "modify by reference" behavior is demonstrated by this first example:
 #+begin_src J
 a =: <0 1 2
-'./libfoobar.dylib foo n *i' cd a
+'./src/lib/libfoobar.dylib foo n *i' cd a
 #+end_src
 
 #+RESULTS:
@@ -44,7 +39,7 @@ Interestingly, the J value ~a~ was not actually changed, indicating that J has a
 Perhaps this is what [[https://www.jsoftware.com/help/jforc/calling_external_programs.htm][JfC]] means by "adequate only for simple functions".
 #+begin_src J
 a =: <0 1 2
-result =: './libfoobar.dylib foo n *i' cd a
+result =: './src/lib/libfoobar.dylib foo n *i' cd a
 (a);<result
 #+end_src
 
@@ -57,7 +52,7 @@ result =: './libfoobar.dylib foo n *i' cd a
 
 In the next example, the return value is a[1]:
 #+begin_src J
-'./libfoobar.dylib bar i *i' cd <1 2 3
+'./src/lib/libfoobar.dylib bar i *i' cd <1 2 3
 #+end_src
 
 #+RESULTS:
@@ -67,7 +62,7 @@ In the next example, the return value is a[1]:
 
 Pass multiple arguments to ~cd~ as a list of boxes:
 #+begin_src  J
-'./libfoobar.dylib baz i *i i' cd 1 2 3;2
+'./src/lib/libfoobar.dylib baz i *i i' cd 1 2 3;2
 #+end_src
 
 #+RESULTS:
@@ -75,22 +70,20 @@ Pass multiple arguments to ~cd~ as a list of boxes:
 : │3│1 2 3│2│
 : └─┴─────┴─┘
 
-
 * printing
-** clib
-#+begin_src C :main no :tangle prnt.c
+#+begin_src C :tangle src/prnt.c
 #include <stdio.h>
 void print(int* x, int len){printf("( ");for(int i=0;i<len;++i){printf("%d ", x[i]);}printf(")\n");}
 #+end_src
 
 #+begin_src bash :results none
-gcc -c prnt.c
-gcc -dynamiclib prnt.o -o libprnt.dylib
+gcc -c src/prnt.c -o src/lib/prnt.o
+gcc -dynamiclib src/lib/prnt.o -o src/lib/libprnt.dylib
 #+end_src
 
-
+The first line is printed by C, the remaining lines are the return value of the foreign function.
 #+begin_src J
-'./libprnt.dylib print n *i i' cd a;#a =: 2 4 6 8 10
+'./src/lib/libprnt.dylib print n *i i' cd a;#a =: 2 4 6 8 10
 #+end_src
 
 #+RESULTS:
@@ -98,3 +91,17 @@ gcc -dynamiclib prnt.o -o libprnt.dylib
 : ┌─┬──────────┬─┐
 : │0│2 4 6 8 10│5│
 : └─┴──────────┴─┘
+* struct
+#+begin_src C :tangle src/s.c
+struct stuff {double a[2]; int i;};
+void fn(struct stuff *x) {x->a[x->i] += 100;}
+#+end_src
+
+#+begin_src bash :results none
+gcc -c src/s.c -o src/lib/s.o
+gcc -dynamiclib src/lib/s.o  -o src/lib/libs.dylib
+#+end_src
+
+#+begin_src J
+'./src/lib/libs.dylib fn '
+#+end_src
