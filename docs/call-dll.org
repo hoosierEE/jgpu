@@ -83,14 +83,15 @@ gcc -dynamiclib src/lib/prnt.o -o src/lib/libprnt.dylib
 
 The first line is printed by C, the remaining lines are the return value of the foreign function.
 #+begin_src J
-'./src/lib/libprnt.dylib print n *i i' cd a;#a =: 2 4 6 8 10
+'./src/lib/libprnt.dylib print n *i i' cd a;#a =: 2 4 6
 #+end_src
 
 #+RESULTS:
-: ( 2 4 6 8 10 )
-: ┌─┬──────────┬─┐
-: │0│2 4 6 8 10│5│
-: └─┴──────────┴─┘
+: ( 2 4 6 )
+: ┌─┬─────┬─┐
+: │0│2 4 6│3│
+: └─┴─────┴─┘
+
 * struct
 #+begin_src C :tangle src/s.c
 struct stuff {double a[2]; int i;};
@@ -99,9 +100,19 @@ void fn(struct stuff *x) {x->a[x->i] += 100;}
 
 #+begin_src bash :results none
 gcc -c src/s.c -o src/lib/s.o
-gcc -dynamiclib src/lib/s.o  -o src/lib/libs.dylib
+gcc -dynamiclib src/lib/s.o  -o src/lib/stuff.dylib
 #+end_src
 
 #+begin_src J
-'./src/lib/libs.dylib fn '
+a =: 2.3 2.4
+i =: 1
+s =: (2 fc a), 2 ic i
+r =: >1{'./src/lib/stuff.dylib fn n *c' cd <s
+(_2 fc 16{.r) NB. the struct was modified
+(_2 ic _4{.r) NB. original index value
 #+end_src
+
+#+RESULTS:
+: 2.3 102.4
+:
+: 1
