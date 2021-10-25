@@ -1,14 +1,12 @@
 LIBNAME=afcpu
 LIBS=-l$(LIBNAME)
-LIB_PATHS=-L/home/alex/Downloads/arrayfire/lib64
-INCLUDES=-I/home/alex/Downloads/arrayfire/include
-# LIB_PATHS=-L/opt/arrayfire/lib
-# INCLUDES=-I/opt/arrayfire/include
-COMPILER_OPTIONS=-std=c++11 -g
+LIB_PATHS=-L/opt/arrayfire/lib64  # linux
+# LIB_PATHS=-L/opt/arrayfire/lib # macos
+INCLUDES=-I/opt/arrayfire/include
 CC=g++ $(COMPILER_OPTIONS)
-EXE=matmul
+COMPILER_OPTIONS=-std=c++11 -g
+EXE = matmul
 
-# install_name_tool line added to fix runtime error on MacOS
 all: main.cpp Makefile
 	$(CC) main.cpp -o $(EXE) $(INCLUDES) $(LIBS) $(LIB_PATHS)
 	# the following line fixes a weird runtime error
@@ -19,5 +17,3 @@ clean:
 
 test: clean all
 	./$(EXE)
-
-# /home/alex/downloads/arrayfire/
