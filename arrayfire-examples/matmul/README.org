@@ -1,0 +1,62 @@
+#+PROPERTY: header-args:bash :results output :exports both
+#+TITLE: ArrayFire matrix multiplication
+This shows matrix multiplication using ArrayFire's C++ and C APIs.
+There are significant differences between the two.
+* main.cpp
+Let's begin with the C++ API, since it is the one used in the documentation.
+#+begin_src C++ :tangle main.cpp
+#include<arrayfire.h>
+int main(void) {
+    af::array M1 = af::randu(2,4);
+    af::array M2 = af::randu(4,3);
+    af::array result = af::matmul(M1, M2);
+    af_print(result);
+}
+#+end_src
+
+Compile and run:
+#+begin_src bash
+g++ main.cpp -I/opt/arrayfire/include -lafcuda -L/opt/arrayfire/lib64
+./a.out
+#+end_src
+
+#+RESULTS:
+: result
+: [2 3 1 1]
+:     0.9704     1.0129     0.9854
+:     0.3218     0.8028     0.7544
+:
+
+
+* main.c
+Next, we can translate the C++ version into a version that uses the C API.
+Note that the ~af_print_array~ function takes ~result~ by value, not by address, and ~af_matmul~ takes only its output parameter (~result~) by address, and all other parameters by value.
+This was surprising to me, and at first I thought my installation was broken because ~af_print_array(&result)~ caused an ~AF_ERR_DEVICE~ error.
+
+#+begin_src C :tangle main.c
+#include<arrayfire.h>
+#include<stdio.h>
+int main() {
+    af_array M1, M2, result;
+    dim_t d1[] = {2, 4};
+    dim_t d2[] = {4, 3};
+    if (AF_SUCCESS != af_randu(&M1, 2, d1, f64)) return 1;
+    if (AF_SUCCESS != af_randu(&M2, 2, d2, f64)) return 1;
+    if (AF_SUCCESS != af_matmul(&result, M1, M2, AF_MAT_NONE, AF_MAT_NONE)) return 1;
+    af_print_array(result);
+    return 0;
+}
+#+end_src
+
+Compile and run:
+#+begin_src bash
+gcc main.c -std=c11 -g -I/opt/arrayfire/include -L/opt/arrayfire/lib64 -lafcuda
+./a.out
+#+end_src
+
+#+RESULTS:
+: No Name Array
+: [2 3 1 1]
+:     0.9704     1.0129     0.9854
+:     0.3218     0.8028     0.7544
+:

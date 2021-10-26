@@ -1,14 +1,14 @@
 LIBNAME=afcpu
 LIBS=-l$(LIBNAME)
-LIB_PATHS=-L/opt/arrayfire/lib
+LIB_PATHS=-L/opt/arrayfire/lib64
 INCLUDES=-I/opt/arrayfire/include
-COMPILER_OPTIONS=-std=c++11 -g
-CC=g++ $(COMPILER_OPTIONS)
-EXE=matmul
+CC=gcc $(COMPILER_OPTIONS)
+COMPILER_OPTIONS=-std=c11 -g
+EXE = matmul
 
-# install_name_tool line added to fix runtime error on MacOS
-all: main.cpp Makefile
+all: main.c Makefile
 	$(CC) main.cpp -o $(EXE) $(INCLUDES) $(LIBS) $(LIB_PATHS)
+	# the following line fixes a weird runtime error
 	install_name_tool -change @rpath/lib${LIBNAME}.3.dylib /opt/arrayfire/lib/lib${LIBNAME}.3.dylib $(EXE)
 
 clean:

@@ -1,4 +1,3 @@
-#+PROPERTY: header-args:J :results output :exports both
 #+SETUPFILE: ~/org/informal-paper.org
 #+TITLE: Project Proposal
 #+SUBTITLE: Course: ENGR-E 517. Professor: Thomas Sterling.
