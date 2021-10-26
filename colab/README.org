@@ -1,0 +1,48 @@
+* Run ArrayFire on colab.research.google.com (colab)
+Notebooks are a list of "cells".
+Cells can contain either Markdown or Python code, and the Python cells can be executed, with their results displayed below.
+
+You can run this in a python cell:
+#+begin_src python
+!pip install arrayfire==3.8.0+cu112 -f https://repo.arrayfire.com/python/wheels/3.8.0/
+import arrayfire as af
+
+# show available .so files
+!ls /usr/local/lib/python3.7/dist-packages/arrayfire/*.so*
+#+end_src
+
+results:
+#+begin_example
+/usr/local/lib/python3.7/dist-packages/arrayfire/libafcpu.so.3
+/usr/local/lib/python3.7/dist-packages/arrayfire/libafcuda.so.3
+/usr/local/lib/python3.7/dist-packages/arrayfire/libafopencl.so.3
+/usr/local/lib/python3.7/dist-packages/arrayfire/libaf.so.3
+/usr/local/lib/python3.7/dist-packages/arrayfire/libcudnn.so.8.1.0
+/usr/local/lib/python3.7/dist-packages/arrayfire/libforge.so.1
+/usr/local/lib/python3.7/dist-packages/arrayfire/libiomp5.so
+/usr/local/lib/python3.7/dist-packages/arrayfire/libnvrtc-builtins.so
+/usr/local/lib/python3.7/dist-packages/arrayfire/libnvrtc.so.11.2
+/usr/local/lib/python3.7/dist-packages/arrayfire/libOpenCL.so.1
+#+end_example
+
+Pip installs ArrayFire at ~/usr/local/lib/python3.7/dist-packages/arrayfire~.
+
+You can also install J:
+#+begin_src python
+%%bash
+wget -qO- http://www.jsoftware.com/download/j902/install/j902_linux64.tar.gz | tar xzf -
+j902/bin/jconsole -js "echo JVERSION" "exit 0"
+#+end_src
+
+results:
+#+begin_example
+Engine: j902/j64/linux
+Release-a: commercial/2020-12-05T11:11:55
+Library: 9.02.08
+Platform: Linux 64
+Installer: J902 install
+InstallPath: /content/j902
+Contact: www.jsoftware.com
+#+end_example
+
+Now you can call ArrayFire from J using a foreign function call.

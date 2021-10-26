@@ -1,0 +1,62 @@
+#+TITLE: ArrayFire Talk with Aaron Hsu
+#+DATE: 2021-10-26
+* different approaches
+- implement J primitives in AF
+- reimplement J's "eval" function (~".~) so that it replaces known parsed tokens with matching AF algorithms
+
+* limitations
+- mem bound operations more limited than compute bound on GPU
+- 3-10x speedups for memory bound operations (GPU mem bandwidth is 3-10x higher than CPU)
+- if you can do other tricks (fusing, data access patterns), get much more speedup
+
+* GPU strategies
+- try to keep mem transfers on faster caches (thread, warp)
+
+* OpenACC
+- openacc compiler works on for-loops
+- expects already-fused ops
+- requires you to identify "reduce" vars, etc.
+- Dyalog primitives are often memory-bound: adding threads usually hurts rather than helps (threads sit idle waiting for data)
+- OpenACC better than openmp in this regard
+- Just doing data transfers, no threading overhead
+
+* real-world usage
+We like to think in HPC terms - massive arrays etc.
+But in real-world APL surveys, most arrays contain 1-2 elements!
+
+(probably biased because APL uses arrays in places where other langs would use scalars)
+
+* co-dfns runtime
+- IR built on stack machine (current model)
+- have tried in the past: free varible allocator, llvm-like version with lots of registers
+- fused OpenACC did not use stack machine
+
+* interesting idea: call co-dfns runtime from J
+The way co-dfns runtime already works is like (given a token) -> (dispatch corresponding function) and generate code for that function.
+
+co-dfns workflow:
+: compile -> stack machine IR -> runtime call
+
+** interpreter concept
+: string -> compiler -> IR -> interpret the IR
+Similar to how Python is "interpreted" but still byte-compiles its code and runs it in a VM.
+
+** co-dfns "runtime" may be possible to use in J
+co-dfns IR interpreter:
+parse J -> IR
+
+implement interpreter side, codfns entry point in interpreter, call from dll
+May require using preexisting apl implementation, depend on Dyalog DLL.
+
+* distribution
+Co-dfns requires users to globally install ArrayFire in ~/opt/arrayfire~ (the default location).
+It's possible to package ArrayFire in other ways, but requires additional work.
+
+* summary
+Investing effort in Aaron's existing ArrayFire runtime could benefit not just J, but also APL and other array languages.
+This could become part of a modular and pluggable GPU toolkit for array language implementors, similar to how LLVM is a modular framework for compiler writers.
+
+Challenges:
+- It should balance general-purpose utility with language-specific needs (e.g. nested arrays vs boxes).
+- If it was generic enough to handle both Dyalog APL and J, would that hurt usability?
+- Could be used by non-array languages, for better or worse.

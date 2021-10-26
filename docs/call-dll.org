@@ -93,26 +93,47 @@ The first line is printed by C, the remaining lines are the return value of the 
 : └─┴─────┴─┘
 
 * struct
+Documentation about how to send/receive data to a dll which uses C structs is scarce.
+However, some J programmers pointed me in the right direction.
+Thanks to Eric Iverson and "Tangentstorm" for their help!
+
+Begin with a C file with a struct datatype and a function:
 #+begin_src C :tangle src/s.c
 struct stuff {double a[2]; int i;};
 void fn(struct stuff *x) {x->a[x->i] += 100;}
 #+end_src
 
+Compile it as a dynamically linked library:
 #+begin_src bash :results none
 gcc -c src/s.c -o src/lib/s.o
 gcc -dynamiclib src/lib/s.o  -o src/lib/stuff.dylib
 #+end_src
 
-#+begin_src J
+Call it from J.
+The big difference is that for simple types, J does conversions automatically.
+But with structs, you have to do the conversions yourself using ~fc~ (float convert) and ~ic~ (integer convert) which are aliases for ~3!:5~ and ~3!:4~, respectively.
+These functions convert J floats or integers into a sequence of bytes, or reverse that conversion, depending on the left argument.
+Basically, the entire struct will be serialized as a char array, and treated as a pointer to char (~*c~).
+The last piece of the puzzle is to box the right argument of ~cd~.
+#+begin_src j
 a =: 2.3 2.4
 i =: 1
 s =: (2 fc a), 2 ic i
-r =: >1{'./src/lib/stuff.dylib fn n *c' cd <s
-(_2 fc 16{.r) NB. the struct was modified
-(_2 ic _4{.r) NB. original index value
+r =: './src/lib/stuff.dylib fn n *c' cd <s
+r =: >1{r
+(_2 fc 16{.r)  NB. the first 16 bytes of the struct contain double[2]
+(_2 ic _4{.r)  NB. last 4 bytes contain int
 #+end_src
 
 #+RESULTS:
 : 2.3 102.4
 :
 : 1
+
+IMPORTANT NOTE!
+
+In this specific case, everything worked out correctly.
+However, in general, compilers may add padding or alignment to structured data.
+This depends on the data and compiler settings, and maybe other things such as the system's CPU architecture and operating system.
+
+Bottom line: do not rely on this kind of simplistic serialization if you need reliable cross-platform code.

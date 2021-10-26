@@ -1,8 +1,2 @@
-struct stuff {
-    double a[2];
-    int i;
-};
-
-void fn(struct stuff *x) {
-    x->a[x->i] += 100;
-}
+typedef struct stuff {double a[2]; int i;} Stuff;
+void fn(Stuff *x) {x->a[x->i] += 100;}
