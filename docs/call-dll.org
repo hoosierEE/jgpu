@@ -1,4 +1,4 @@
-#+PROPERTY: header-args:J :exports both :output results
+#+PROPERTY: header-args:j :exports both :output results :wrap example
 #+PROPERTY: header-args:C :main no :mkdirp t
 #+SETUPFILE: ~/org/blog.org
 * call a (simple) dynamic library from J
@@ -25,50 +25,60 @@ This seemed pointless to me at first, until I realized that C can't return array
 Instead, you can pass a pointer to an array, modify the array inside the function, and examine the array after the function returns.
 
 This "modify by reference" behavior is demonstrated by this first example:
-#+begin_src J
+#+begin_src j
 a =: <0 1 2
 './src/lib/libfoobar.dylib foo n *i' cd a
 #+end_src
 
 #+RESULTS:
-: ┌─┬─────┐
-: │0│3 1 2│
-: └─┴─────┘
+#+begin_example
+┌─┬─────┐
+│0│3 1 2│
+└─┴─────┘
+#+end_example
 
 Interestingly, the J value ~a~ was not actually changed, indicating that J has a second copy.
 Perhaps this is what [[https://www.jsoftware.com/help/jforc/calling_external_programs.htm][JfC]] means by "adequate only for simple functions".
-#+begin_src J
+
+#+begin_src j
 a =: <0 1 2
 result =: './src/lib/libfoobar.dylib foo n *i' cd a
 (a);<result
 #+end_src
 
 #+RESULTS:
-: ┌───────┬─────────┐
-: │┌─────┐│┌─┬─────┐│
-: ││0 1 2│││0│3 1 2││
-: │└─────┘│└─┴─────┘│
-: └───────┴─────────┘
+#+begin_example
+┌───────┬─────────┐
+│┌─────┐│┌─┬─────┐│
+││0 1 2│││0│3 1 2││
+│└─────┘│└─┴─────┘│
+└───────┴─────────┘
+#+end_example
+
 
 In the next example, the return value is a[1]:
-#+begin_src J
+#+begin_src j
 './src/lib/libfoobar.dylib bar i *i' cd <1 2 3
 #+end_src
 
 #+RESULTS:
-: ┌─┬─────┐
-: │2│1 2 3│
-: └─┴─────┘
+#+begin_example
+┌─┬─────┐
+│2│1 2 3│
+└─┴─────┘
+#+end_example
 
 Pass multiple arguments to ~cd~ as a list of boxes:
-#+begin_src  J
+#+begin_src j
 './src/lib/libfoobar.dylib baz i *i i' cd 1 2 3;2
 #+end_src
 
 #+RESULTS:
-: ┌─┬─────┬─┐
-: │3│1 2 3│2│
-: └─┴─────┴─┘
+#+begin_example
+┌─┬─────┬─┐
+│3│1 2 3│2│
+└─┴─────┴─┘
+#+end_example
 
 * printing
 #+begin_src C :tangle src/prnt.c
@@ -82,34 +92,36 @@ gcc -dynamiclib src/lib/prnt.o -o src/lib/libprnt.dylib
 #+end_src
 
 The first line is printed by C, the remaining lines are the return value of the foreign function.
-#+begin_src J
+#+begin_src j
 './src/lib/libprnt.dylib print n *i i' cd a;#a =: 2 4 6
 #+end_src
 
 #+RESULTS:
-: ( 2 4 6 )
-: ┌─┬─────┬─┐
-: │0│2 4 6│3│
-: └─┴─────┴─┘
+#+begin_example
+( 2 4 6 )
+┌─┬─────┬─┐
+│0│2 4 6│3│
+└─┴─────┴─┘
+#+end_example
 
 * struct
 Documentation about how to send/receive data to a dll which uses C structs is scarce.
 However, some J programmers pointed me in the right direction.
 Thanks to Eric Iverson and "Tangentstorm" for their help!
 
-Begin with a C file with a struct datatype and a function:
+** Begin with a C file with a struct datatype and a function:
 #+begin_src C :tangle src/s.c
 struct stuff {double a[2]; int i;};
 void fn(struct stuff *x) {x->a[x->i] += 100;}
 #+end_src
 
-Compile it as a dynamically linked library:
+** Compile it as a dynamically linked library:
 #+begin_src bash :results none
 gcc -c src/s.c -o src/lib/s.o
 gcc -dynamiclib src/lib/s.o  -o src/lib/stuff.dylib
 #+end_src
 
-Call it from J.
+** Call it from J.
 The big difference is that for simple types, J does conversions automatically.
 But with structs, you have to do the conversions yourself using ~fc~ (float convert) and ~ic~ (integer convert) which are aliases for ~3!:5~ and ~3!:4~, respectively.
 These functions convert J floats or integers into a sequence of bytes, or reverse that conversion, depending on the left argument.
@@ -126,12 +138,13 @@ r =: >1{r
 #+end_src
 
 #+RESULTS:
-: 2.3 102.4
-:
-: 1
+#+begin_example
+2.3 102.4
 
-IMPORTANT NOTE!
+1
+#+end_example
 
+** IMPORTANT NOTE!
 In this specific case, everything worked out correctly.
 However, in general, compilers may add padding or alignment to structured data.
 This depends on the data and compiler settings, and maybe other things such as the system's CPU architecture and operating system.

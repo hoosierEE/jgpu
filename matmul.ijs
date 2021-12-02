@@ -20,7 +20,14 @@ echo Y
 echo 'X +/ . * Y (on CPU):'
 echo X +/ . * Y
 
-'/opt/arrayfire/lib64/libafcpu.so.3 foo n *i' cd a
+NB. '/opt/arrayfire/lib64/libafcpu.so.3 foo n *i' cd a
 NB. Result should look like this:
 NB. 22 28
 NB. 49 64
+
+NB. (af_array *out, const af_array lhs, const af_array rhs, const af_mat_prop optLhs, const af_mat_prop optRhs)
+NB.             *x                   x                   x                         i                         i
+matmul =: '/opt/arrayfire/lib64/libafcpu.so.3 af_matmul i *x x x i i'&cd
+NB. (af_array *arr, const void *const data, const unsigned ndims, const dim_t *const dims, const af_dtype type)
+NB.           *x                        *d                     x                       *x                    i
+array =: '/opt/arrayfire/lib64/libafcpu.so.3 af_create_array i *x *d x *x i'&cd
