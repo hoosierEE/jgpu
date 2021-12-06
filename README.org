@@ -2,10 +2,11 @@
 Run J code on the GPU
 #+end_quote
 * plan outline
-** main goal: ~(x +/ .* y)~ executing on the gpu
-- should work on various gpu brands/devices
-- prototype with ~cd~ interface to GPU backend, callable from J
-- timing measurements - ideally captured by a user script, to better configure their particular system:
+**  main goal: ~(x +/ .* y)~ executing on the gpu [2/3]
+- [X] should work on various gpu brands/devices
+  tested/ok: libafcpu, libafcuda, libafopencl. untested/unknown: non-cuda gpus
+- [X] prototype with ~cd~ interface to GPU backend, callable from J
+- [ ] timing measurements - ideally captured by a user script, to better configure their particular system:
   + time to transfer a byte from L1$/L2$ CPU memory to the GPU
   + time to transfer a byte from L3$/SDRAM to the GPU
   + time to transfer a byte from GPU to L1$/L2$ CPU memory
