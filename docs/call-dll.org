@@ -123,7 +123,7 @@ gcc -dynamiclib src/lib/s.o  -o src/lib/stuff.dylib
 
 ** Call it from J.
 The big difference is that for simple types, J does conversions automatically.
-But with structs, you have to do the conversions yourself using ~fc~ (float convert) and ~ic~ (integer convert) which are aliases for ~3!:5~ and ~3!:4~, respectively.
+But with structs, you have to do the conversions yourself using ~fc~ (float convert, ~3!:5~) and ~ic~ (integer convert, ~3!:4~).
 These functions convert J floats or integers into a sequence of bytes, or reverse that conversion, depending on the left argument.
 Basically, the entire struct will be serialized as a char array, and treated as a pointer to char (~*c~).
 The last piece of the puzzle is to box the right argument of ~cd~.
