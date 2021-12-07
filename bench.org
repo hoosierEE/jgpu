@@ -49,18 +49,6 @@ jbench =: {{
 NB. exit''
  #+end_src
 
- #+begin_src j :tangle fail_cold.ijs
-load'bench.ijs'
-0 aftest 128
- #+end_src
-
- #+begin_src j :tangle fail_warm.ijs
- load'bench.ijs'
- 0 aftest 127
- 0 aftest 1401
- 0 aftest 1450 NB. sometimes 1402 fails, but 1450 always fails
- #+end_src
-
 * Results
 Currently, ~aftest~ segfaults for matrix sizes > ~127x127~ (cold start) or ~1401x1401~ (warm start).
 #+begin_src j
