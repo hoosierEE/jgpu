@@ -2,13 +2,13 @@ NB. matmul using GPU backend via ArrayFire
 NB. LIB =: '/opt/arrayfire/lib64/libafcpu.so.3 '  NB. GPU backend, requires nvidia gpu
 LIB =: '/opt/arrayfire/lib64/libafcuda.so.3 '  NB. GPU backend, requires nvidia gpu
 chk =: {{ if. 0<>{.y do. exit echo 'ERROR',":y else. 1{:: y end. }}
-af_create_array  =: chk@cd~&(LIB,'af_create_array i *i *d x *x i')  NB. hard-coded for 'double' type
-af_create_handle   =: chk@cd~&(LIB,'af_create_handle i * i *l i')
 af_alloc_device_v2 =: chk@cd~&(LIB,'af_alloc_device_v2 i * i')
+af_create_array    =: chk@cd~&(LIB,'af_create_array i *i *d x *x i')  NB. hard-coded for 'double' type (*d)
+af_create_handle   =: chk@cd~&(LIB,'af_create_handle i * i *l i')
 af_free_device_v2  =: chk@cd~&(LIB,'af_free_device_v2 i *')
-af_get_device_ptr  =: chk@cd~&(LIB,'af_get_device_ptr i ')
 af_get_data_ptr    =: chk@cd~&(LIB,'af_get_data_ptr i i i')
 af_get_device      =: chk@cd~&(LIB,'af_get_device i i')
+af_get_device_ptr  =: chk@cd~&(LIB,'af_get_device_ptr i ')
 af_matmul          =: chk@cd~&(LIB,'af_matmul i *x x x i i')
 af_release_array   =: chk@cd~&(LIB,'af_release_array i x')
 af_sync            =: chk@cd~&(LIB,'af_sync i i')
@@ -33,7 +33,10 @@ aftest_result =: {{
 
  device =. af_get_device pdev =. mema 8
  af_sync device
+ echo 'sync1'
  o2 =. af_get_data_ptr p2;{.o1
+ af_sync device
+ echo 'sync2'
  r =. shp$memr o2,0,(*/shp),8
  NB. free memory
  af_release_array"0 ma1,o1
