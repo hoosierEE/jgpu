@@ -18,6 +18,7 @@ Another example (N=5):
 20 21 22 23 24
 #+end_example
 
+The ~matmul~ operation will be timed with two identical such matrices as its arguments.
 
 * Results
 All timing measurements are captured within J, and show the duration of the matrix multiply operation only.
