@@ -66,5 +66,5 @@ NB. }}
 
 aftest =: {{ 0{::aftest_result y }}
 
-aftest 1
+NB. aftest 1  NB. uncomment to "warm up" ArrayFire
 exit aftest "._1{::ARGV

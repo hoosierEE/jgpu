@@ -1,77 +1,41 @@
 * Matrix Multiply Benchmarks
-Generate data on the GPU, send result back to CPU.
-1. measure performance of matmul+transfer for various matrix sizes on GPU
+1. measure performance of matmul for various matrix sizes on GPU
 2. determine break-even data size (if any) where GPU is faster
 
-For simplicity, these experiments will consider only square matrices.
- #+begin_src j
-NB. matmul using GPU backend via ArrayFire
-NB. LIB =: '/opt/arrayfire/lib64/libafcpu.so.3 '  NB. GPU backend, requires nvidia gpu
-LIB =: '/opt/arrayfire/lib64/libafcuda.so.3 '  NB. GPU backend, requires nvidia gpu
-chk =: {{ if. 0<>{.y do. exit echo 'ERROR',":y else. 1{:: y end. }}
-af_create_array  =: chk@cd~&(LIB,'af_create_array i *i *d x *x i')  NB. hard-coded for 'double' type
-af_create_handle   =: chk@cd~&(LIB,'af_create_handle i * i *l i')
-af_alloc_device_v2 =: chk@cd~&(LIB,'af_alloc_device_v2 i * i')
-af_free_device_v2  =: chk@cd~&(LIB,'af_free_device_v2 i *')
-af_get_device_ptr  =: chk@cd~&(LIB,'af_get_device_ptr i ')
-af_get_data_ptr    =: chk@cd~&(LIB,'af_get_data_ptr i i i')
-af_get_device      =: chk@cd~&(LIB,'af_get_device i i')
-af_matmul          =: chk@cd~&(LIB,'af_matmul i *x x x i i')
-af_release_array   =: chk@cd~&(LIB,'af_release_array i x')
-af_sync            =: chk@cd~&(LIB,'af_sync i i')
-f64 =: 2  NB. 2 = arrayfire type code for double precision float
+For simplicity, these experiments will consider only square matrices of edge length N, in this form:
+Example (N=3):
+#+begin_example
+0 1 2
+3 4 5
+6 7 8
+#+end_example
+Another example (N=5):
+#+begin_example
+ 0  1  2  3  4
+ 5  6  7  8  9
+10 11 12 13 14
+15 16 17 18 19
+20 21 22 23 24
+#+end_example
 
-NB. sh =: 1e3*2}.{{{{y,+/_2{.y}}^:y 0 1}}8  NB. fibonacci shaped sequence (1000..34000 elements)
-NB. sz =: 1e9%~8**/@(2#]) sh  NB. GB of each result (0.008..9.248 GB)
-
-jtest_result =: {{ r;(timex'r=.a+/ .*a=.1+i.2#y') }}
-jtest =: {{ 1{::jtest_result y }}
-
-aftest_result =: {{
- shp =. 2#y
- 'p1 p2' =. mema each 2#8**/shp  NB. allocate 2 same-size pointers on host
- ma1 =. af_create_array (,p1);(1+i.shp);(#shp);shp;f64  NB. (device)
-
- NB. matmul happens:
- t =. 6!:1''  NB. start
- o1 =. af_matmul (,p2);({.ma1);({.ma1);0;0  NB. matmul (device)
- echo '   time taken for (i.', (":shp), ') +/ .* (i.' ,(":shp), '):'
- t =. t-~6!:1''  NB. elapsed
-
- device =. af_get_device pdev =. mema 8
- af_sync device
- o2 =. af_get_data_ptr p2;{.o1
- r =. shp$memr o2,0,(*/shp),8
- NB. free memory
- af_release_array"0 ma1,o1
- memf"0 p1,p2,pdev  NB. free memory
- r;t
-}}
-
-aftest =: {{ 1{::aftest_result y }}
-
-NB. 0 aftest 127 NB. Warm-up. Largest size possible without segfault
-NB. 0 aftest ".2{::ARGV
-NB. exit''
-
-jbench =: {{
- r =. 0 0$0
- for_i. 500 1000 2000 5000 do. r =. r,0 jtest i end.
- r}}
-NB. exit''
- #+end_src
 
 * Results
-Currently, ~aftest~ segfaults for matrix sizes > ~127x127~ (cold start) or ~1401x1401~ (warm start).
-#+begin_src j
-   0&jtest"0] 100 1000 2000 4000
-0.000253916 0.0580389 0.420089 3.36571
-#+end_src
+All timing measurements are captured within J, and show the duration of the matrix multiply operation only.
 
-|    N | time (GPU) | time (CPU) |
-|------+------------+------------|
-|  100 |   0.001571 |            |
-| 1000 |   0.001725 |            |
-| 2000 |   0.002646 |            |
-| 4000 |   0.006348 |            |
-| 5000 |    0.00909 |            |
+|     N |       CPU | GPU (cold) | GPU (warm) |
+|-------+-----------+------------+------------|
+|    10 |   0.00003 |    0.00149 |    0.00003 |
+|   100 |   0.00028 |    0.00157 |    0.00003 |
+|  1000 |   0.07671 |    0.00172 |    0.00012 |
+|  2000 |   0.43586 |    0.00265 |    0.00014 |
+|  4000 |   3.43190 |    0.00635 |    0.00025 |
+|  5000 |   6.48677 |    0.00909 |    0.00036 |
+|  6000 |  10.99981 |    0.01261 |    0.00047 |
+|  8000 |  25.81416 |    0.02156 |    0.00068 |
+| 10000 |  50.19670 |    0.03276 |    0.00106 |
+| 15000 | 174.86698 |    0.03281 |    0.00213 |
+
+This does not capture the whole story, because in the real world, transferring data between CPU and GPU memory takes significant time, whereas if data acquisition, computation, and output all occur on the CPU, there are no extra transfers.
+
+It is true that CPU memory is non-uniform, and consists of fast registers, fairly fast caches, and slower main memory.
+But when using a GPU as an accelerator, the total memory latency suffers from all of these regular effects, plus the overhead of transferring to the GPU's memory.
