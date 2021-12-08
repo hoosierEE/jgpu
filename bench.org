@@ -4,7 +4,7 @@ Generate data on the GPU, send result back to CPU.
 2. determine break-even data size (if any) where GPU is faster
 
 For simplicity, these experiments will consider only square matrices.
- #+begin_src j :tangle bench.ijs
+ #+begin_src j
 NB. matmul using GPU backend via ArrayFire
 NB. LIB =: '/opt/arrayfire/lib64/libafcpu.so.3 '  NB. GPU backend, requires nvidia gpu
 LIB =: '/opt/arrayfire/lib64/libafcuda.so.3 '  NB. GPU backend, requires nvidia gpu
@@ -67,3 +67,11 @@ Currently, ~aftest~ segfaults for matrix sizes > ~127x127~ (cold start) or ~1401
    0&jtest"0] 100 1000 2000 4000
 0.000253916 0.0580389 0.420089 3.36571
 #+end_src
+
+|    N | time (GPU) | time (CPU) |
+|------+------------+------------|
+|  100 |   0.001571 |            |
+| 1000 |   0.001725 |            |
+| 2000 |   0.002646 |            |
+| 4000 |   0.006348 |            |
+| 5000 |    0.00909 |            |
