@@ -27,6 +27,8 @@ All timing measurements are captured within J, and show the duration of the matr
 |-------+-----------+------------+------------|
 |    10 |   0.00003 |    0.00149 |    0.00003 |
 |   100 |   0.00028 |    0.00157 |    0.00003 |
+|   200 |  0.001639 |    0.00151 |    0.00003 |
+|   500 |   0.01648 |    0.00175 |    0.00011 |
 |  1000 |   0.07671 |    0.00172 |    0.00012 |
 |  2000 |   0.43586 |    0.00265 |    0.00014 |
 |  4000 |   3.43190 |    0.00635 |    0.00025 |
@@ -36,7 +38,7 @@ All timing measurements are captured within J, and show the duration of the matr
 | 10000 |  50.19670 |    0.03276 |    0.00106 |
 | 15000 | 174.86698 |    0.03281 |    0.00213 |
 
-This does not capture the whole story, because in the real world, transferring data between CPU and GPU memory takes significant time, whereas if data acquisition, computation, and output all occur on the CPU, there are no extra transfers.
-
-It is true that CPU memory is non-uniform, and consists of fast registers, fairly fast caches, and slower main memory.
-But when using a GPU as an accelerator, the total memory latency suffers from all of these regular effects, plus the overhead of transferring to the GPU's memory.
+This does not capture the whole story, because in the real world, transferring data between CPU and GPU memory takes significant time.
+CPU memory is non-uniform, and consists of fast registers, fairly fast caches, and slower main memory.
+However, most data originates closer to the CPU's memory than the GPU's memory.
+When using a GPU as an accelerator, the total memory latency suffers from all of these regular effects, plus the overhead of transferring to the GPU's memory.
