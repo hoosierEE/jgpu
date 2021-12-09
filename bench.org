@@ -23,6 +23,7 @@ The ~matmul~ operation will be timed with two identical such matrices as its arg
 * Results
 All timing measurements are captured within J, and show the duration of the matrix multiply operation only.
 
+#+name: n_timings
 |     N |       CPU | GPU (cold) | GPU (warm) |
 |-------+-----------+------------+------------|
 |    10 |   0.00003 |    0.00149 |    0.00003 |
@@ -35,6 +36,7 @@ All timing measurements are captured within J, and show the duration of the matr
 |  8000 |  25.81416 |    0.02156 |    0.00068 |
 | 10000 |  50.19670 |    0.03276 |    0.00106 |
 | 15000 | 174.86698 |    0.03281 |    0.00213 |
+
 
 This does not capture the whole story, because in the real world, transferring data between CPU and GPU memory takes significant time, whereas if data acquisition, computation, and output all occur on the CPU, there are no extra transfers.
 
